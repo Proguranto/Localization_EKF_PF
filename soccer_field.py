@@ -95,6 +95,10 @@ class Field:
         prev_x, prev_y, prev_theta = x.ravel()
         rot1, trans, rot2 = u.ravel()
         # YOUR IMPLEMENTATION HERE
+        jacobian = torch.tensor([[1, 0, -trans * np.sin(prev_theta + rot1)],
+                                 [0, 1, trans * np.cos(prev_theta + rot1)],
+                                 [0, 0, 1]])
+        # mu_pred = ??
         
         return mu_pred, jacobian
 
@@ -103,6 +107,9 @@ class Field:
         prev_x, prev_y, prev_theta = x.ravel()
         rot1, trans, rot2 = u.ravel()
         # YOUR IMPLEMENTATION HERE
+        jacobian = torch.tensor([[-trans * np.sin(prev_theta + rot1), np.cos(prev_theta + rot1), 0],
+                                 [trans * np.cos(prev_theta + rot1), np.sin(prev_theta + rot1), 0],
+                                 [1, 0, 1]])
         
         return jacobian
 
@@ -110,8 +117,14 @@ class Field:
         """Compute the Jacobian of the observation with respect to the state."""
         prev_x, prev_y, prev_theta = x[0], x[1], x[2]
         # YOUR IMPLEMENTATION HERE
+        l_x = self.MARKER_X_POS[marker_id]
+        l_y = self.MARKER_Y_POS[marker_id]
+        jacobian = torch.tensor([3,])
+        jacobian[0] = (l_y - prev_y) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
+        jacobian[1] = - (l_x - prev_x) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
+        jacobian[2] = - 1
         
-        return jacobean
+        return jacobian
 
 
     def forward(self, x, u):

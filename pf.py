@@ -32,7 +32,12 @@ class ParticleFilter:
         new_particles = self.particles
 
         # YOUR IMPLEMENTATION HERE
-        
+
+        # Call sample noisy action and move particles with noisy action.
+        for i in range(new_particles.shape[0]):
+            new_particles[i] = env.forward(x=new_particles[i], u=env.sample_noisy_action(u=u)).reshape(3,)
+
+        # print("particle size: ", new_particles.shape, new_particles)
         
         return new_particles
 
@@ -48,6 +53,30 @@ class ParticleFilter:
 
         # YOUR IMPLEMENTATION HERE
 
+        # Call observe() to get bearing of each of the new particles.
+        observations = np.ndarray(particles.shape[0])
+        for i in range(particles.shape[0]):
+            observations[i] = env.observe(particles[i], marker_id)
+        
+        # Get the likelihood of the particle being in that position given z.
+        innovations = np.ndarray(particles.shape[0])
+        for i in range(observations.shape[0]):
+            innovations[i] = minimized_angle(z - observations[i])
+
+        likelihood = env.likelihood(innovations.reshape(1, innovations.shape[0]), self.beta)
+        # Gather weights from diagonal.
+        weights = likelihood.diagonal()
+        # print("observations: ", observations)
+        # print("\n")
+        # print("innovations: ", np.amin(np.abs(innovations)))
+        # print("\n")
+        # print("z: ", z)
+        # print("\n")
+        # print("weights: ", np.amax(weights))
+
+        # Resample with new weight.
+        self.particles = self.resample(particles=particles, weights=weights)
+
         mean, cov = self.mean_and_variance(self.particles)
         return mean, cov
 
@@ -59,7 +88,29 @@ class ParticleFilter:
         weights: (n,) array of weights
         """
         # YOUR IMPLEMENTATION HERE
+        # chosen_particles = []
+        new_particles = np.ndarray(shape=(particles.shape))
+        num_particles = particles.shape[0]
+        total_weight = np.sum(weights)
+        ratio = total_weight / num_particles
+        r = np.random.uniform(low=0, high=(ratio))
+        # print("r: ", r)
+        c = weights[0]
+        i = 0
+        j = 0
+        for m in range(num_particles):
+            u = r + (m) * (ratio)
+            while u > c:
+                i = i + 1
+                c = c + weights[i]
+                # print("u: ", u)
+                # print("c: ", c)
             
+            new_particles[m] = particles[i]
+
+        # new_particles = np.ndarray(shape=(len(chosen_particles), 3))
+        # for i in range(len(chosen_particles)):
+        #     new_particles[i] = chosen_particles[i]
                 
         return new_particles
 
