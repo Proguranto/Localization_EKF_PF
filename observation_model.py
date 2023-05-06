@@ -23,6 +23,9 @@ class ObservationModel(nn.Module):
             nn.ReLU(),
             nn.Linear(512,512),
             nn.ReLU(),
+            # nn.Linear(512,1024), # new (2) part f
+            # nn.ReLU(), # new (2) part f
+            # nn.Linear(1024,output_channels), # new (2) part f
             nn.Linear(512,output_channels),
         )
 

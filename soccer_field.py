@@ -95,10 +95,10 @@ class Field:
         prev_x, prev_y, prev_theta = x.ravel()
         rot1, trans, rot2 = u.ravel()
         # YOUR IMPLEMENTATION HERE
-        jacobian = torch.tensor([[1, 0, -trans * np.sin(prev_theta + rot1)],
+        jacobian = np.array([[1, 0, -trans * np.sin(prev_theta + rot1)],
                                  [0, 1, trans * np.cos(prev_theta + rot1)],
                                  [0, 0, 1]])
-        # mu_pred = ??
+        mu_pred = self.forward(x=x, u=u)
         
         return mu_pred, jacobian
 
@@ -107,7 +107,7 @@ class Field:
         prev_x, prev_y, prev_theta = x.ravel()
         rot1, trans, rot2 = u.ravel()
         # YOUR IMPLEMENTATION HERE
-        jacobian = torch.tensor([[-trans * np.sin(prev_theta + rot1), np.cos(prev_theta + rot1), 0],
+        jacobian = np.array([[-trans * np.sin(prev_theta + rot1), np.cos(prev_theta + rot1), 0],
                                  [trans * np.cos(prev_theta + rot1), np.sin(prev_theta + rot1), 0],
                                  [1, 0, 1]])
         
@@ -119,10 +119,10 @@ class Field:
         # YOUR IMPLEMENTATION HERE
         l_x = self.MARKER_X_POS[marker_id]
         l_y = self.MARKER_Y_POS[marker_id]
-        jacobian = torch.tensor([3,])
-        jacobian[0] = (l_y - prev_y) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
-        jacobian[1] = - (l_x - prev_x) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
-        jacobian[2] = - 1
+        jacobian = np.ndarray(shape=(1, 3))
+        jacobian[0][0] = (l_y - prev_y) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
+        jacobian[0][1] = - (l_x - prev_x) / (np.square(l_x - prev_x) + np.square(l_y - prev_y))
+        jacobian[0][2] = - 1
         
         return jacobian
 
